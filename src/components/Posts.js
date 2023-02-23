@@ -6,17 +6,18 @@ import User from "./user";
 
 function Posts() {
   const posts = useSelector(getAllPosts);
-  console.log(posts)
+
+  const showRecentsPostsFirst = posts.slice().sort((a, b) => b.date.localeCompare(a.date));
 
   return (
     <section>
-      {posts.map((post) => (
+      {showRecentsPostsFirst.map((post) => (
         <article key={post.id}>
           <h3>{post.title}</h3>
           <p>{post.content.substring(0, 100)}</p>
           <p className="postCredit">
-          <User authorId={post.authorId} />
-          <TimeAgo timestamp={post.date}/>
+            <User authorId={post.authorId} />
+            <TimeAgo timestamp={post.date} />
           </p>
         </article>
       ))}
