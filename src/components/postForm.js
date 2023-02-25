@@ -25,7 +25,7 @@ function PostForm() {
   const canSave = Boolean(title) && Boolean(content) && Boolean(authorId);
 
   return (
-    <section>
+    <section className="animeLeft">
       <form onSubmit={handleSubmit}>
         <label htmlFor="title">Title:</label>
         <input

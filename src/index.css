@@ -68,3 +68,34 @@ form {
   font-size: 1rem;
   cursor: pointer;
 }
+
+.loading {
+  display: flex;
+  margin: auto;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: transparent;
+  border: 8px solid blueviolet;
+  border-right-color: transparent;
+  animation: loading .5s infinite;
+}
+
+@keyframes loading {
+  to {
+    rotate: 360deg;
+  }
+}
+
+.animeLeft{
+  opacity: 0;
+  translate: -30px;
+  animation: animeLeft .5s forwards;
+}
+
+@keyframes animeLeft  {
+to {
+opacity: initial;
+translate: initial;
+}
+}

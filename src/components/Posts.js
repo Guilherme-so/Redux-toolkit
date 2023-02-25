@@ -1,29 +1,53 @@
-import React from "react";
-import { useSelector } from "react-redux";
-import { getAllPosts } from "../redux/features/posts/postsSice";
+import React, { useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  getAllPosts,
+  getPostStatus,
+  getPostsError,
+  fetchPosts,
+} from "../redux/features/posts/postsSice";
 import ReactionButtons from "./ReactionButtons";
 import TimeAgo from "./TimeAgo";
 import User from "./user";
 
 function Posts() {
-  const posts = useSelector(getAllPosts);
-  console.log(posts)
+  const dispatch = useDispatch();
 
-  const showRecentsPostsFirst = posts.slice().sort((a, b) => b.date.localeCompare(a.date));
+  const posts = useSelector(getAllPosts);
+  const status = useSelector(getPostStatus);
+  const erro = useSelector(getPostsError);
+
+  useEffect(() => {
+    if (status === "idle") {
+      dispatch(fetchPosts());
+    }
+  }, [dispatch, status]);
+
+  const showRecentsPostsFirst = posts
+    .slice()
+    .sort((a, b) => b.date.localeCompare(a.date));
 
   return (
     <section>
-      {showRecentsPostsFirst.map((post) => (
-        <article key={post.id}>
-          <h3>{post.title}</h3>
-          <p>{post.content.substring(0, 100)}</p>
-          <p className="postCredit">
-            <User authorId={post.authorId} />
-            <TimeAgo timestamp={post.date} />
-          </p>
-          <ReactionButtons post={post} />
-        </article>
-      ))}
+      {status === "pending" ? (
+        <p className="loading"></p>
+      ) : status === "succeeded" ? (
+        <section className="animeLeft">
+          {showRecentsPostsFirst.map((post, index) => (
+            <article key={index}>
+              <h3>{post.title}</h3>
+              <p>{post.body.substring(0, 100)}</p>
+              <p className="postCredit">
+                <User authorId={post.id} />
+                <TimeAgo timestamp={post.date} />
+              </p>
+              <ReactionButtons post={post} />
+            </article>
+          ))}
+        </section>
+      ) : (
+        <p>{erro}</p>
+      )}
     </section>
   );
 }
