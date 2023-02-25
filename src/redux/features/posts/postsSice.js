@@ -9,10 +9,26 @@ export const fetchPosts = createAsyncThunk("posts/fetchAllPosts", async () => {
     const data = await resp.json();
     return data;
   } catch (err) {
-    return err.message
+    return err.message;
   }
 });
 
+export const addNewPost = createAsyncThunk("posts/addNewPost", async (post) => {
+  try {
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(post),
+    });
+
+    const data = response.json();
+    return data;
+  } catch (erro) {
+    console.log(erro);
+  }
+});
 
 const initialState = {
   posts: [],
@@ -55,30 +71,43 @@ const postsSlice = createSlice({
   },
 
   extraReducers: (builder) => {
-    builder.addCase(fetchPosts.pending, (state, action) => {
-      state.status = "pending";
-    });
-    builder.addCase(fetchPosts.fulfilled, (state, action) => {
-      state.status = "succeeded";
+    builder
+      .addCase(fetchPosts.pending, (state, action) => {
+        state.status = "pending";
+      })
+      .addCase(fetchPosts.fulfilled, (state, action) => {
+        state.status = "succeeded";
 
-      let min = 1;
-      const fetchedPosts = action.payload.map((post) => {
-        post.date = sub(new Date(), { minutes: min++ }).toISOString();
-        post.reactions = {
-          like: "0",
-          dislike: "0",
-          heart: "0",
-          star: "0",
+        let min = 1;
+        const fetchedPosts = action.payload.map((post) => {
+          post.date = sub(new Date(), { minutes: min++ }).toISOString();
+          post.reactions = {
+            like: 0,
+            dislike: 0,
+            heart: 0,
+            star: 0,
+          };
+          return post;
+        });
+
+        state.posts = state.posts.concat(fetchedPosts);
+      })
+      .addCase(fetchPosts.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message;
+      })
+      .addCase(addNewPost.fulfilled, (state, action) => {
+        action.payload.userId = Number(action.payload.userId);
+        action.payload.date = new Date().toISOString();
+        action.payload.reactions = {
+          like: 0,
+          dislike: 0,
+          heart: 0,
+          star: 0,
         };
-        return post;
+        console.log(action.payload);
+        state.posts.push(action.payload);
       });
-
-      state.posts = state.posts.concat(fetchedPosts);
-    });
-    builder.addCase(fetchPosts.rejected, (state, action) => {
-      state.status = "failed";
-      state.error = action.error.message;
-    });
   },
 });
 

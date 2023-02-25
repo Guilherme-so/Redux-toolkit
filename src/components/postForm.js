@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addedForm } from "../redux/features/posts/postsSice";
+import { addNewPost } from "../redux/features/posts/postsSice";
 import { getAllUsers } from "../redux/features/users/usersSlice";
+import { ColorRing } from "react-loader-spinner";
 
 function PostForm() {
   const dispatch = useDispatch();
@@ -10,19 +11,33 @@ function PostForm() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [authorId, setAuthorId] = useState("");
+  const [addResquestStatus, setAddRequestStatus] = useState("idle");
+
+  // const canSave = Boolean(title) && Boolean(content) && Boolean(authorId);
+  const canSave =
+    [title, content, authorId].every(Boolean) && addResquestStatus === "idle";
+  console.log(canSave);
 
   function handleSubmit(e) {
     e.preventDefault();
 
-    if (title && content) {
-      dispatch(addedForm(title, content, authorId));
-      setTitle("");
-      setContent("");
-      setAuthorId("");
+    if (canSave) {
+      try {
+        setAddRequestStatus("pending");
+        setTimeout(() => {
+          dispatch(addNewPost({ title, body: content, authorId })).unwrap()
+        }, 2000);
+
+        setTitle("");
+        setContent("");
+        setAuthorId("");
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setAddRequestStatus("idle");
+      }
     }
   }
-
-  const canSave = Boolean(title) && Boolean(content) && Boolean(authorId);
 
   return (
     <section className="animeLeft">
@@ -57,7 +72,14 @@ function PostForm() {
           value={content}
           onChange={({ target }) => setContent(target.value)}
         />
-        <button disabled={!canSave}>Create</button>
+
+        <button className="button" disabled={!canSave}>
+          {addResquestStatus === "pending" ? (
+            <ColorRing height="40" width="40" radius="9" ariaLabel="loading" />
+          ) : (
+            "Create"
+          )}
+        </button>
       </form>
     </section>
   );

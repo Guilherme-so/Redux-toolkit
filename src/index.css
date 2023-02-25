@@ -99,3 +99,10 @@ opacity: initial;
 translate: initial;
 }
 }
+
+.button {
+  display: flex;
+  min-width: 120px;
+  justify-content: center;
+  margin: auto;
+}
