@@ -30,6 +30,37 @@ export const addNewPost = createAsyncThunk("posts/addNewPost", async (post) => {
   }
 });
 
+export const updatePost = createAsyncThunk("post/updatePost", async (post) => {
+  try {
+    const response = await fetch(`${API_URL}/${post.id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(post),
+    });
+    const data = await response.json();
+    return data;
+  } catch (err) {
+    return err.message;
+  }
+});
+
+export const deletePost = createAsyncThunk("post/deletePost", async (post) => {
+  try {
+    const response = await fetch(`${API_URL}/${post.id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const data = await response.json();
+    return data;
+  } catch (err) {
+    return err.message;
+  }
+});
+
 const initialState = {
   posts: [],
   status: "idle", // 'idle' | 'pending' | 'succeeded' | 'failed'
@@ -107,7 +138,25 @@ const postsSlice = createSlice({
         };
         console.log(action.payload);
         state.posts.push(action.payload);
-      });
+      })
+      .addCase(updatePost.fulfilled, (state, action) => {
+        if (!action.payload.id) {
+          console.log("update could not complete");
+          console.log(action.payload);
+          return;
+        }
+
+        const { id } = action.payload;
+        action.payload.date = new Date().toISOString();
+        const posts = state.posts.filter((post) => post.id != id);
+        state.posts = [...posts, action.payload];
+      })
+      .addCase(deletePost.fulfilled, (state,action) => {
+        if(!action.payload.id){
+          console.log("post nao encontrado para deletar")
+          console.log(action.payload)
+        }
+      })
   },
 });
 
@@ -115,9 +164,8 @@ export const getAllPosts = (state) => state.posts.posts;
 export const getPostStatus = (state) => state.posts.status;
 export const getPostsError = (state) => state.posts.error;
 
-export const getPostById = (state, postId) => {
-  state.posts.posts.find((post) => post.id == postId);
-};
+export const getPostById = (state, postId) =>
+  state.posts.posts.find((post) => post.id === postId);
 
 export const { addedForm, addedReactions } = postsSlice.actions;
 export default postsSlice.reducer;

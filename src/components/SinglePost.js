@@ -4,14 +4,12 @@ import { getPostById } from "../redux/features/posts/postsSice";
 import ReactionButtons from "./ReactionButtons";
 import TimeAgo from "./TimeAgo";
 import User from "./user";
-import {useParams} from "react-router-dom"
+import { Link, useParams } from "react-router-dom";
 
 function SinglePost() {
-const {postId} = useParams()
+  const { postId } = useParams();
+  const post = useSelector((state) => getPostById(state, Number(postId)));
 
-  const post = useSelector((state) => getPostById(state,postId));
-
-  console.log(post)
   return (
     <>
       {post ? (
@@ -19,6 +17,7 @@ const {postId} = useParams()
           <h3>{post.title}</h3>
           <p>{post.body}</p>
           <p className="postCredit">
+            <Link to={`/post/edit/${postId}`}>Update Post</Link>
             <User authorId={post.id} />
             <TimeAgo timestamp={post.date} />
           </p>

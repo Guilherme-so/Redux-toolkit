@@ -5,7 +5,7 @@ import { getAllUsers } from "../redux/features/users/usersSlice";
 function User({ authorId }) {
   const users = useSelector(getAllUsers);
 
-  const author = users.find((user) => user.id == authorId);
+  const author = users.find((user) => user.id === authorId);
 
   return <span>By {author ? author.name : "Unknown author"}</span>;
 }
