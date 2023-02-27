@@ -1,12 +1,17 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
-import { getPostById, updatePost } from "../redux/features/posts/postsSice";
+import {
+  deletePost,
+  getPostById,
+  updatePost,
+} from "../redux/features/posts/postsSice";
 import { getAllUsers } from "../redux/features/users/usersSlice";
 
 const EditPostForm = () => {
   const { postId } = useParams();
   const navigate = useNavigate();
+  console.log(postId);
 
   const post = useSelector((state) => getPostById(state, Number(postId)));
   const users = useSelector(getAllUsers);
@@ -55,6 +60,20 @@ const EditPostForm = () => {
     }
   };
 
+  function onDeletePost() {
+    try {
+      dispatch(deletePost({ id: post.id })).unwrap();
+      setTitle("");
+      setContent("");
+      setUserId("");
+      navigate("/");
+    } catch (err) {
+      console.error("failed to delete post" + err);
+    } finally {
+      setRequestStatus("idle");
+    }
+  }
+
   const usersOptions = users.map((user) => (
     <option key={user.id} value={user.id}>
       {user.name}
@@ -93,7 +112,7 @@ const EditPostForm = () => {
           Save Post
         </button>
 
-        <button type="button" onClick={onSavePostClicked}>
+        <button className="deleteButton" type="button" onClick={onDeletePost}>
           Delete Post
         </button>
       </form>

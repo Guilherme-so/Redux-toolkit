@@ -3,10 +3,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { addNewPost } from "../redux/features/posts/postsSice";
 import { getAllUsers } from "../redux/features/users/usersSlice";
 import { ColorRing } from "react-loader-spinner";
+import { useNavigate } from "react-router-dom";
 
 function PostForm() {
   const dispatch = useDispatch();
   const users = useSelector(getAllUsers);
+  const navigate = useNavigate();
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -25,12 +27,13 @@ function PostForm() {
       try {
         setAddRequestStatus("pending");
         setTimeout(() => {
-          dispatch(addNewPost({ title, body: content, authorId })).unwrap()
+          dispatch(addNewPost({ title, body: content, authorId })).unwrap();
         }, 2000);
 
         setTitle("");
         setContent("");
         setAuthorId("");
+        navigate("/");
       } catch (err) {
         console.log(err);
       } finally {

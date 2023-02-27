@@ -1,13 +1,13 @@
 import { createSlice, createAsyncThunk, nanoid } from "@reduxjs/toolkit";
+import axios from "axios";
 import { sub } from "date-fns";
 
 const API_URL = "https://jsonplaceholder.typicode.com/posts";
 
 export const fetchPosts = createAsyncThunk("posts/fetchAllPosts", async () => {
   try {
-    const resp = await fetch(API_URL);
-    const data = await resp.json();
-    return data;
+    const resp = await axios.get(API_URL);
+    return resp.data;
   } catch (err) {
     return err.message;
   }
@@ -15,16 +15,8 @@ export const fetchPosts = createAsyncThunk("posts/fetchAllPosts", async () => {
 
 export const addNewPost = createAsyncThunk("posts/addNewPost", async (post) => {
   try {
-    const response = await fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(post),
-    });
-
-    const data = response.json();
-    return data;
+    const response = await axios.post(API_URL, post);
+    return response.data;
   } catch (erro) {
     console.log(erro);
   }
@@ -32,15 +24,8 @@ export const addNewPost = createAsyncThunk("posts/addNewPost", async (post) => {
 
 export const updatePost = createAsyncThunk("post/updatePost", async (post) => {
   try {
-    const response = await fetch(`${API_URL}/${post.id}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(post),
-    });
-    const data = await response.json();
-    return data;
+    const response = await axios.put(`${API_URL}/${post.id}`, post);
+    return response.data;
   } catch (err) {
     return err.message;
   }
@@ -48,14 +33,9 @@ export const updatePost = createAsyncThunk("post/updatePost", async (post) => {
 
 export const deletePost = createAsyncThunk("post/deletePost", async (post) => {
   try {
-    const response = await fetch(`${API_URL}/${post.id}`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const data = await response.json();
-    return data;
+    const response = await axios.delete(`${API_URL}/${post.id}`);
+    if (response?.status === 200) return post;
+    return `${response?.status}: ${response?.statusText}`;
   } catch (err) {
     return err.message;
   }
@@ -151,12 +131,17 @@ const postsSlice = createSlice({
         const posts = state.posts.filter((post) => post.id != id);
         state.posts = [...posts, action.payload];
       })
-      .addCase(deletePost.fulfilled, (state,action) => {
-        if(!action.payload.id){
-          console.log("post nao encontrado para deletar")
-          console.log(action.payload)
+      .addCase(deletePost.fulfilled, (state, action) => {
+        if (!action.payload.id) {
+          console.log("post nao encontrado para deletar");
+          console.log(action.payload);
+          return;
         }
-      })
+
+        const { id } = action.payload;
+        const posts = state.posts.filter((post) => post.id !== id);
+        state.posts = posts;
+      });
   },
 });
 
