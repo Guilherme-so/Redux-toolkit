@@ -115,5 +115,9 @@ export const getAllPosts = (state) => state.posts.posts;
 export const getPostStatus = (state) => state.posts.status;
 export const getPostsError = (state) => state.posts.error;
 
+export const getPostById = (state, postId) => {
+  state.posts.posts.find((post) => post.id == postId);
+};
+
 export const { addedForm, addedReactions } = postsSlice.actions;
 export default postsSlice.reducer;
